@@ -1,0 +1,27 @@
+{
+  "ModId": "p3rpc.flowscriptframework",
+  "ModName": "P3RE Flowscript Framework",
+  "ModAuthor": "Rirurin",
+  "ModVersion": "1.0.0",
+  "ModDescription": "Allows mods to add new Flowscript and MessageScript functions",
+  "ModDll": "p3rpc.flowscriptframework.dll",
+  "ModIcon": "Preview.png",
+  "ModR2RManagedDll32": "x86/p3rpc.flowscriptframework.dll",
+  "ModR2RManagedDll64": "x64/p3rpc.flowscriptframework.dll",
+  "ModNativeDll32": "",
+  "ModNativeDll64": "",
+  "IsLibrary": false,
+  "ReleaseMetadataFileName": "p3rpc.flowscriptframework.ReleaseMetadata.json",
+  "PluginData": {},
+  "IsUniversalMod": false,
+  "ModDependencies": [
+    "Reloaded.Memory.SigScan.ReloadedII",
+    "reloaded.sharedlib.hooks",
+    "SharedScans.Reloaded"
+  ],
+  "OptionalDependencies": [],
+  "SupportedAppId": [
+    "p3r.exe"
+  ],
+  "ProjectUrl": ""
+}
