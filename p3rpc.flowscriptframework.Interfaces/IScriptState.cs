@@ -2,6 +2,7 @@
 
 public interface IScriptState
 {
+    
     /// <summary>
     /// Gets an integer argument at a given index.
     /// </summary>
@@ -34,4 +35,10 @@ public interface IScriptState
     /// </summary>
     /// <param name="value">A float value for the return value.</param>
     public void SetReturnValue(float value);
+
+    public IArgLifetime PushValue(int value);
+    
+    public IArgLifetime PushValue(float value);
+    
+    public IArgLifetime PushValue(string value);
 }

@@ -1,0 +1,30 @@
+{
+  "ModId": "p3rpc.flowscriptframework.test",
+  "ModName": "P3RE Flowscript Framework Test",
+  "ModAuthor": "Rirurin",
+  "ModVersion": "1.0.0",
+  "ModDescription": "Flowscript Framework Test for Persona 3 Reload",
+  "ModDll": "p3rpc.flowscriptframework.test.dll",
+  "ModIcon": "Preview.png",
+  "ModR2RManagedDll32": "x86/p3rpc.flowscriptframework.test.dll",
+  "ModR2RManagedDll64": "x64/p3rpc.flowscriptframework.test.dll",
+  "ModNativeDll32": "",
+  "ModNativeDll64": "",
+  "IsLibrary": false,
+  "ReleaseMetadataFileName": "p3rpc.flowscriptframework.test.ReleaseMetadata.json",
+  "PluginData": {},
+  "IsUniversalMod": false,
+  "ModDependencies": [ 
+    "P3R.UEToolkit",
+    "p3rpc.flowscriptframework",
+    "Reloaded.Memory.SigScan.ReloadedII",
+    "reloaded.sharedlib.hooks",
+    "SharedScans.Reloaded",
+    "UE.Toolkit.Reloaded"
+  ],
+  "OptionalDependencies": [],
+  "SupportedAppId": [
+    "p3r.exe"
+  ],
+  "ProjectUrl": ""
+}

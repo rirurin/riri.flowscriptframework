@@ -1,22 +1,15 @@
 ﻿using System.ComponentModel;
+using p3rpc.flowscriptframework.test.Template.Configuration;
+using Reloaded.Mod.Interfaces.Structs;
 using RyoTune.Reloaded;
-using p3rpc.flowscriptframework.Template.Configuration;
 
-namespace p3rpc.flowscriptframework.Configuration;
+namespace p3rpc.flowscriptframework.test.Configuration;
 
 public class Config : Configurable<Config>
 {
     [DisplayName("Log Level")]
     [DefaultValue(LogLevel.Information)]
     public LogLevel LogLevel { get; set; } = LogLevel.Information;
-
-    [DisplayName("Enable Log Functions")]
-    [DefaultValue(true)]
-    public bool EnableLogFunctions { get; set; } = true;
-    
-    [DisplayName("Log When Function Invoked")]
-    [DefaultValue(false)]
-    public bool LogOnFunctionInvoke { get; set; } = false;
 }
 
 /// <summary>

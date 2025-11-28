@@ -1,19 +1,21 @@
 ﻿using System.Diagnostics;
 using p3rpc.commonmodutils;
+using p3rpc.flowscriptframework.Interfaces;
 using Reloaded.Hooks.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces;
-using p3rpc.flowscriptframework.Template;
-using p3rpc.flowscriptframework.Configuration;
-using p3rpc.flowscriptframework.Interfaces;
+using p3rpc.flowscriptframework.test.Template;
+using p3rpc.flowscriptframework.test.Configuration;
 using Reloaded.Memory;
 using Reloaded.Memory.SigScan.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces.Internal;
 using RyoTune.Reloaded;
 using SharedScans.Interfaces;
+using UE.Toolkit.Core.Types.Unreal.Factories;
+using UE.Toolkit.Interfaces;
 
-namespace p3rpc.flowscriptframework;
+namespace p3rpc.flowscriptframework.test;
 
-public class Mod : ModBase, IExports
+public class Mod : ModBase
 {
     private readonly IModLoader _modLoader;
     private readonly IReloadedHooks? _hooks;
@@ -21,7 +23,7 @@ public class Mod : ModBase, IExports
     private readonly IMod _owner;
     private Config _configuration;
     private readonly IModConfig _modConfig;
-
+    
     private FlowscriptContext _context;
     private readonly ModuleRuntime<FlowscriptContext> _runtime;
 
@@ -47,17 +49,18 @@ public class Mod : ModBase, IExports
         Utils utils = Utils.Create(_modLoader, startupScanner, _logger, _hooks, baseAddress, _modConfig.ModName, System.Drawing.Color.PaleTurquoise);
         
         var sharedScans = utils.GetDependencyEx<ISharedScans>("Shared Scans");
+        var toolkitClasses = utils.GetDependencyEx<IUnrealClasses>("Class Interface (UE Toolkit");
+        var toolkitFactory = utils.GetDependencyEx<IUnrealFactory>("Factory Interface (UE Toolkit)");
+        var toolkitState = utils.GetDependencyEx<IUnrealState>("State Interface (UE Toolkit)");
+        var flowLib = utils.GetDependencyEx<IFlowFramework>("Flowscript Library");
+        
         _context = new(
-            baseAddress, _configuration, _logger, startupScanner, _hooks,
-            _modLoader.GetDirectoryForModId(_modConfig.ModId), utils,
-            new Memory(), sharedScans);
+            baseAddress, _configuration, _logger, startupScanner, _hooks, _modLoader.GetDirectoryForModId(_modConfig.ModId), 
+            utils, new Memory(), sharedScans, toolkitClasses, toolkitFactory, toolkitState, flowLib);
         _runtime = new(_context);
-        _runtime.AddModule<FlowFramework>();
-        _runtime.AddModule<MsgFramework>();
-        _runtime.AddModule<RestorePrintFuncs>();
+        _runtime.AddModule<Invoke>();
+        _runtime.AddModule<Registration>();
         _runtime.RegisterModules();
-        _modLoader.AddOrReplaceController<IFlowFramework>(_owner, _runtime.GetModule<FlowFramework>());
-        _modLoader.AddOrReplaceController<IMsgFramework>(_owner, _runtime.GetModule<MsgFramework>());
         
         _modLoader.OnModLoaderInitialized += OnLoaderInit;
         _modLoader.ModLoading += OnModLoading;
@@ -68,7 +71,6 @@ public class Mod : ModBase, IExports
     public override void ConfigurationUpdated(Config configuration)
     {
         _configuration = configuration;
-        _runtime.UpdateConfiguration(_configuration);
     }
 
     #endregion
@@ -92,6 +94,4 @@ public class Mod : ModBase, IExports
 #pragma warning restore CS8618
 
     #endregion
-
-    public Type[] GetTypes() => [typeof(IFlowFramework), typeof(IMsgFramework)];
 }

@@ -11,4 +11,12 @@ public interface IFlowFramework
     /// <param name="function">The contents of the custom functions.</param>
     /// <param name="idOverride">Optional value to override vanilla flow functions only.</param>
     public void Register(string functionName, int argCount, Func<IScriptState, FlowStatus> function, ushort idOverride = ushort.MaxValue);
+
+    public bool TryGetFunctionIndex(string Name, out ushort Index);
+
+    public void InvokeVoid(string Name, List<IInvokeParams> Args);
+
+    public int InvokeInt(string Name, List<IInvokeParams> Args);
+    
+    public float InvokeFloat(string Name, List<IInvokeParams> Args);
 }
