@@ -17,15 +17,18 @@ public class FlowscriptContext : Context
     public IUnrealFactory _toolkitFactory { get; init; }
     public IUnrealState _toolkitState { get; init; }
     public IFlowFramework _flowLib { get; init; }
+    public IMsgFramework _msgLib { get; init; }
     
     public FlowscriptContext(long baseAddress, IConfigurable config, ILogger logger, IStartupScanner startupScanner, 
         IReloadedHooks hooks, string modLocation, Utils utils, Memory memory, ISharedScans sharedScans, 
-        IUnrealClasses toolkitClasses, IUnrealFactory toolkitFactory, IUnrealState toolkitState, IFlowFramework flowLib) 
+        IUnrealClasses toolkitClasses, IUnrealFactory toolkitFactory, IUnrealState toolkitState, 
+        IFlowFramework flowLib, IMsgFramework msgLib) 
         : base(baseAddress, config, logger, startupScanner, hooks, modLocation, utils, memory, sharedScans)
     {
         _toolkitClasses = toolkitClasses;
         _toolkitFactory = toolkitFactory;
         _toolkitState = toolkitState;
         _flowLib = flowLib;
+        _msgLib = msgLib;
     }
 }

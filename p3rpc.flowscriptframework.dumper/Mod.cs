@@ -1,19 +1,20 @@
 ﻿using System.Diagnostics;
+using System.Text;
+using AtlusScriptLibrary.Common.Libraries;
+using AtlusScriptLibrary.Common.Text.Encodings;
 using p3rpc.commonmodutils;
-using p3rpc.flowscriptframework.Interfaces;
 using Reloaded.Hooks.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces;
-using p3rpc.flowscriptframework.test.Template;
-using p3rpc.flowscriptframework.test.Configuration;
+using p3rpc.flowscriptframework.dumper.Template;
+using p3rpc.flowscriptframework.dumper.Configuration;
+using p3rpc.flowscriptframework.Interfaces;
 using Reloaded.Memory;
 using Reloaded.Memory.SigScan.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces.Internal;
 using RyoTune.Reloaded;
 using SharedScans.Interfaces;
-using UE.Toolkit.Core.Types.Unreal.Factories;
-using UE.Toolkit.Interfaces;
 
-namespace p3rpc.flowscriptframework.test;
+namespace p3rpc.flowscriptframework.dumper;
 
 public class Mod : ModBase
 {
@@ -23,9 +24,9 @@ public class Mod : ModBase
     private readonly IMod _owner;
     private Config _configuration;
     private readonly IModConfig _modConfig;
-    
-    private FlowscriptContext _context;
-    private readonly ModuleRuntime<FlowscriptContext> _runtime;
+
+    private DumperContext _context;
+    private readonly ModuleRuntime<DumperContext> _runtime;
 
     public Mod(ModContext context)
     {
@@ -35,7 +36,6 @@ public class Mod : ModBase
         _owner = context.Owner;
         _configuration = context.Configuration;
         _modConfig = context.ModConfig;
-        
 #if DEBUG
         //Debugger.Launch();
 #endif
@@ -49,18 +49,17 @@ public class Mod : ModBase
         Utils utils = Utils.Create(_modLoader, startupScanner, _logger, _hooks, baseAddress, _modConfig.ModName, System.Drawing.Color.PaleTurquoise);
         
         var sharedScans = utils.GetDependencyEx<ISharedScans>("Shared Scans");
-        var toolkitClasses = utils.GetDependencyEx<IUnrealClasses>("Class Interface (UE Toolkit");
-        var toolkitFactory = utils.GetDependencyEx<IUnrealFactory>("Factory Interface (UE Toolkit)");
-        var toolkitState = utils.GetDependencyEx<IUnrealState>("State Interface (UE Toolkit)");
         var flowLib = utils.GetDependencyEx<IFlowFramework>("Flowscript Library");
         var msgLib = utils.GetDependencyEx<IMsgFramework>("Messagescript Library");
         
+        LibraryLookup.SetLibraryPath($"{_modLoader.GetDirectoryForModId(_modConfig.ModId)}/Libraries");
+        AtlusEncoding.SetCharsetDirectory($"{_modLoader.GetDirectoryForModId(_modConfig.ModId)}/Charsets");
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        
         _context = new(
             baseAddress, _configuration, _logger, startupScanner, _hooks, _modLoader.GetDirectoryForModId(_modConfig.ModId), 
-            utils, new Memory(), sharedScans, toolkitClasses, toolkitFactory, toolkitState, flowLib, msgLib);
+            utils, new Memory(), sharedScans, flowLib, msgLib);
         _runtime = new(_context);
-        _runtime.AddModule<Invoke>();
-        _runtime.AddModule<Registration>();
         _runtime.RegisterModules();
         
         _modLoader.OnModLoaderInitialized += OnLoaderInit;
@@ -72,6 +71,7 @@ public class Mod : ModBase
     public override void ConfigurationUpdated(Config configuration)
     {
         _configuration = configuration;
+        _logger.WriteLine($"[{_modConfig.ModId}] Config Updated: Applying");
     }
 
     #endregion

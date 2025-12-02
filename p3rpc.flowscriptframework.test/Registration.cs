@@ -15,6 +15,11 @@ public class Registration : ModuleBase<FlowscriptContext>
             ctx.SetReturnValue(num * num);
             return FlowStatus.SUCCESS;
         });
+        _context._msgLib.Register("rgb", 1, ctx =>
+        {
+            Log.Debug($"TODO: RGB tag");
+            return true;
+        });
     }
 
     public override void Register()

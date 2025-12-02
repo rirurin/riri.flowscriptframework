@@ -16,6 +16,7 @@ public class Invoke : ModuleBase<FlowscriptContext>
 
     private unsafe void AOtHUD_TickImpl(AOtHUD* self, float delta)
     {
+        /*
         if ((Native.GetAsyncKeyState(0x31) & 1) != 0)
         {
             for (var i = 0; i < 256; i++)
@@ -30,6 +31,7 @@ public class Invoke : ModuleBase<FlowscriptContext>
                 Log.Debug($"{nameof(Invoke)} || SQUARE({i}) = {square}");
             }
         }
+        */
         _AOtHudTick.OriginalFunction(self, delta);
     }
     
