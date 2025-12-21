@@ -21,14 +21,32 @@ public unsafe class MsgFramework : ModuleBase<FlowscriptContext>, IMsgFramework
     private static Dictionary<byte, string> CustomNames = [];
     private static Dictionary<byte, List<MessageParam>> CustomParams = [];
     private Queue<(string, List<MessageParam>, Func<IMessageState, bool>, ushort)> RegisterQueue = [];
+    
+    private static (int, int) MessageIdToParts(int Id) => (Id >> 5, Id & 0x1f);
+    private static int MessageIdFromParts(int Sec, int Index) => Sec << 5 | Index;
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static int CallCustomFunction(int FunctionIndex, MessageContext* Context)
-         => CustomFunctions.TryGetValue((byte)(FunctionIndex & 0xff), out var Func)
-            ? Func(new MessageState(Context, (FunctionIndex & 0xf00) >> 7)) ? 1 : 0 : 1;
-
-    private (int, int) MessageIdToParts(int Id) => (Id >> 5, Id & 0x1f);
-    private int MessageIdFromParts(int Sec, int Index) => Sec << 5 | Index;
+    {
+        var ArgCount = (FunctionIndex & 0xf00) >> 7;
+        var FunctionId = (byte)(FunctionIndex & 0xff);
+        var (Sec, Index) = MessageIdToParts(FunctionId);
+        var MsgState = new MessageState(Context, ArgCount);
+        /*
+        List<string> ArgFmt = [];
+        for (var i = 0; i < MsgState.ArgCount; i++)
+            ArgFmt.Add(MsgState.GetArg(i).ToString());
+        Log.Debug($"{nameof(MsgFramework)} || [f {Sec} {Index} {string.Join(" ", ArgFmt)}] " +
+                  $"|| Context @ 0x{(nint)Context:x} || Offset 0x{Context->Offsets:x} " +
+                  $"|| XYZ [ {Context->X} / {Context->Y} / {Context->Z} ]");
+        if (Context->Text != null)
+            Log.Debug($"\t\tContext->Text @ 0x{(nint)Context->Text:x} " +
+                      $"|| {Context->Text->ToString()}");
+        */
+        return CustomFunctions.TryGetValue(FunctionId, out var Func)
+            ? Func(MsgState) ? 1 : 0 
+            : 1;
+    }
 
     private Dictionary<byte, IHook<DebugVanillaFunction>> VanillaFunctionDebug = [];
 
@@ -45,10 +63,11 @@ public unsafe class MsgFramework : ModuleBase<FlowscriptContext>, IMsgFramework
                 ArgFmt.Add(MsgState.GetArg(i).ToString());
             var (Sec, Index) = MessageIdToParts(FunctionId);
             Log.Debug($"{nameof(MsgFramework)} || [f {Sec} {Index} {string.Join(" ", ArgFmt)}] " +
-                      $"|| Context @ 0x{(nint)Context:x} || XYZ [ {Context->X} / {Context->Y} /  {Context->Z} ]");
+                  $"|| Context @ 0x{(nint)Context:x} || Offset 0x{Context->Offsets:x} " +
+                  $"|| XYZ [ {Context->X} / {Context->Y} / {Context->Z} ]");
             if (Context->Text != null)
                 Log.Debug($"\t\tContext->Text @ 0x{(nint)Context->Text:x} " +
-                          $"|| {Context->Text->ToString()}");           
+                          $"|| {Context->Text->ToString()}");
         }
         return VanillaFunctionDebug.TryGetValue(FunctionId, out var Original)
             ? Original.OriginalFunction(FunctionIndex, Context) : 0;

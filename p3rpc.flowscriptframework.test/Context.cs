@@ -18,11 +18,12 @@ public class FlowscriptContext : Context
     public IUnrealState _toolkitState { get; init; }
     public IFlowFramework _flowLib { get; init; }
     public IMsgFramework _msgLib { get; init; }
+    public Wrappers _wrappers { get; init; }
     
     public FlowscriptContext(long baseAddress, IConfigurable config, ILogger logger, IStartupScanner startupScanner, 
         IReloadedHooks hooks, string modLocation, Utils utils, Memory memory, ISharedScans sharedScans, 
         IUnrealClasses toolkitClasses, IUnrealFactory toolkitFactory, IUnrealState toolkitState, 
-        IFlowFramework flowLib, IMsgFramework msgLib) 
+        IFlowFramework flowLib, IMsgFramework msgLib, Wrappers wrappers) 
         : base(baseAddress, config, logger, startupScanner, hooks, modLocation, utils, memory, sharedScans)
     {
         _toolkitClasses = toolkitClasses;
@@ -30,5 +31,6 @@ public class FlowscriptContext : Context
         _toolkitState = toolkitState;
         _flowLib = flowLib;
         _msgLib = msgLib;
+        _wrappers = wrappers;
     }
 }

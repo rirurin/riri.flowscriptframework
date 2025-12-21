@@ -16,6 +16,11 @@ public class Config : Configurable<Config>
     [Description("Set the library to dump functions for")]
     [DefaultValue("Persona3Reload")]
     public string TargetLibrary { get; set; } = "Persona3Reload";
+
+    [DisplayName("Wrapper Function Namespace")]
+    [Description("Set the namespace that the wrapper function should be made for")]
+    [DefaultValue("p3rpc.flowscriptframework.test")]
+    public string WrapperNamespace { get; set; } = "p3rpc.flowscriptframework.test";
 }
 
 /// <summary>

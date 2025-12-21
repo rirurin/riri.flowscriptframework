@@ -18,7 +18,7 @@ public class RestorePrintFuncs(FlowscriptContext context, Dictionary<string, Mod
         {
             Log.Information($"{ctx.GetIntArg(0)}");
         }
-        return FlowStatus.SUCCESS;       
+        return FlowStatus.SUCCESS;
     }
     
     private FlowStatus PutString(IScriptState ctx)
@@ -27,7 +27,7 @@ public class RestorePrintFuncs(FlowscriptContext context, Dictionary<string, Mod
         {
             Log.Information($"{ctx.GetStringArg(0)}");
         }
-        return FlowStatus.SUCCESS;       
+        return FlowStatus.SUCCESS;
     }
     
     private FlowStatus PutFloat(IScriptState ctx)
@@ -36,7 +36,7 @@ public class RestorePrintFuncs(FlowscriptContext context, Dictionary<string, Mod
         {
             Log.Information($"{ctx.GetFloatArg(0)}");
         }
-        return FlowStatus.SUCCESS;       
+        return FlowStatus.SUCCESS;
     }
 
     public override void Register()

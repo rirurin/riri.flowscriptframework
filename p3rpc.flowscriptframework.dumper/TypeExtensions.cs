@@ -1,4 +1,5 @@
 ﻿using AtlusScriptLibrary.Common.Libraries;
+using p3rpc.flowscriptframework.Interfaces;
 using riri.flowscriptframework.Types.V4;
 
 namespace p3rpc.flowscriptframework.dumper;
@@ -31,6 +32,15 @@ public static class TypeExtensions
             ParamType.Float => "float",
             ParamType.String => "string",
             _ => "unknown"
+        };
+
+    public static string ToInvokeParam(this ParamType Self)
+        => Self switch
+        {
+            ParamType.Int => nameof(IntParam),
+            ParamType.Float => nameof(FloatParam),
+            ParamType.String => nameof(StringParam),
+            _ => throw new Exception($"Cannot handle a parameter of type {Self}")
         };
 
     public static MessageScriptLibrary ToAst(this MessageSectionJson Self)

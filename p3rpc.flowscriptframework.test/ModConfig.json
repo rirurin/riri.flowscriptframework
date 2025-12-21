@@ -16,6 +16,7 @@
   "IsUniversalMod": false,
   "ModDependencies": [ 
     "P3R.UEToolkit",
+    "p3rpc.essentials",
     "p3rpc.flowscriptframework",
     "Reloaded.Memory.SigScan.ReloadedII",
     "reloaded.sharedlib.hooks",

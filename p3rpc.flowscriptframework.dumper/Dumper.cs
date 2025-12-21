@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AtlusScriptLibrary.Common.Collections;
@@ -119,6 +120,29 @@ public class FlowscriptDumpSection(string name, List<FlowScriptModuleFunction> f
     public List<FlowScriptModuleFunction> Functions { get; } = functions;
 }
 
+public class WrapperWriter(Stream stream) : StreamWriter(stream)
+{
+    private int IndentLevel { get; set; }
+
+    public void Indent() => IndentLevel++;
+    public void Unindent() => IndentLevel = int.Max(IndentLevel - 1, 0);
+
+    public void StartBracket()
+    {
+        WriteLine("{");
+        Indent();
+    }
+
+    public void EndBracket()
+    {
+        Unindent();
+        WriteLine("}");
+    }
+
+    public override void WriteLine(string? value)
+        => base.WriteLine($"{new string('\t', IndentLevel)}{value}");
+}
+
 public unsafe class Dumper(DumperContext context, Dictionary<string, ModuleBase<DumperContext>> modules)
     : ModuleBase<DumperContext>(context, modules)
 {
@@ -226,8 +250,9 @@ public unsafe class Dumper(DumperContext context, Dictionary<string, ModuleBase<
                 var ExistFunc = ExistSec?.Functions.Find(x => x.Index == Function.Index);
                 MsgDecl.WriteStartObject();
                 MsgDecl.WriteNumber("Index", Function.Index);
-                MsgDecl.WriteString("Name", Function.Name ?? ExistFunc?.Name ?? "");
-                MsgDecl.WriteString("Description", ExistFunc?.Description ?? "");
+                
+                MsgDecl.WriteString("Name", Function.Name != string.Empty ? Function.Name : ExistFunc?.Name ?? "");
+                MsgDecl.WriteString("Description", Function.Description != string.Empty ? Function.Description : ExistFunc?.Description ?? "");
                 if (Function.Semantic == MessageScriptLibraryFunctionSemantic.Unused)
                     MsgDecl.WriteString("Semantic", "Unused");
                 MsgDecl.WriteStartArray("Parameters");
@@ -248,7 +273,41 @@ public unsafe class Dumper(DumperContext context, Dictionary<string, ModuleBase<
         MsgDecl.Dispose();
     }
 
+    private void GenerateWrapper()
+    {
+        var Config = (Config)_context._config;
+        var WrapperPath = Path.Combine(_context._modLocation, "Wrapper");
+        Directory.CreateDirectory(WrapperPath);
+        var WrapperFile = Path.Join(WrapperPath, $"{Config.TargetLibrary}.cs");
+        var AllFunctions = _context._flowLib.GetAllFunctions();
+        using var WrapperWriter = new WrapperWriter(new FileStream(WrapperFile, FileMode.Create));
+        WrapperWriter.WriteLine("// ReSharper disable InconsistentNaming");
+        WrapperWriter.WriteLine("using p3rpc.flowscriptframework.Interfaces;");
+        WrapperWriter.WriteLine($"namespace {Config.WrapperNamespace};");
+        WrapperWriter.WriteLine("public class Wrappers(IFlowFramework flowLib)");
+        WrapperWriter.StartBracket();
+        WrapperWriter.WriteLine("private IFlowFramework FlowLib { get; } = flowLib;");
+        WrapperWriter.WriteLine();
+        foreach (var Function in AllFunctions)
+        {
+            var ParamList = string.Join(", ", 
+                Function.Parameters.Select(x => $"{x.Type.ToAst()} {x.Name}"));
+            WrapperWriter.WriteLine($"public {Function.ReturnType.ToAst()} {Function.Name}({ParamList}) =>");
+            WrapperWriter.Indent();
+            var ParamTransfer = string.Join(", ", 
+                Function.Parameters.Select(x => $"new {x.Type.ToInvokeParam()}({x.Name})"));
+            WrapperWriter.WriteLine($"FlowLib.Invoke{Function.ReturnType}(\"{Function.Name}\", [{ParamTransfer}]);");
+            WrapperWriter.Unindent();
+        }
+        WrapperWriter.EndBracket();
+        WrapperWriter.Dispose();
+    }
+
     public override void Register() {}
 
-    public override void OnConfigUpdated(IConfigurable newConfig) => DumpFunctions();
+    public override void OnConfigUpdated(IConfigurable newConfig)
+    {
+        DumpFunctions();
+        GenerateWrapper();
+    }
 }

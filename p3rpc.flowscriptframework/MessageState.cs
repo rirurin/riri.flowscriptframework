@@ -1,4 +1,5 @@
-﻿using p3rpc.flowscriptframework.Interfaces;
+﻿using System.Drawing;
+using p3rpc.flowscriptframework.Interfaces;
 using riri.flowscriptframework.Types.V4;
 using RyoTune.Reloaded;
 
@@ -21,4 +22,12 @@ public unsafe class MessageState(MessageContext* context, int argCount) : IMessa
         var Args = (byte*)(Context->Msg + Context->Offsets) + Index * 2;
         return ((byte)(Args[1] - 1) << 8) | (byte)(Args[0] - 1);
     }
+
+    public void SetColor(Color color)
+    {
+        Context->Color = (uint)(color.A | (color.B << 0x8) | (color.G << 0x10) | (color.R << 0x18));
+        Context->ColNo = 0;
+    }
+
+    public uint GetTagLevel() => Context->TagLevel;
 }

@@ -16,22 +16,24 @@ public class Invoke : ModuleBase<FlowscriptContext>
 
     private unsafe void AOtHUD_TickImpl(AOtHUD* self, float delta)
     {
-        /*
         if ((Native.GetAsyncKeyState(0x31) & 1) != 0)
         {
             for (var i = 0; i < 256; i++)
             {
-                var Res = _context._flowLib.InvokeInt("GET_COUNT", [new IntParam(i)]);
+                // Without Wrapper: 
+                // var Res = _context._flowLib.InvokeInt("GET_COUNT", [new IntParam(i)]);
+                var Res = _context._wrappers.GET_COUNT(i);
                 Log.Debug($"{nameof(Invoke)} || GET_COUNT({i}) = {Res}");
             }
 
             for (var i = 0; i < 20; i++)
             {
-                var square = _context._flowLib.InvokeInt("SQUARE", [new IntParam(i)]);
+                // Without Wrapper:
+                // var square = _context._flowLib.InvokeInt("SQUARE", [new IntParam(i)]);
+                var square = _context._wrappers.SQUARE(i);
                 Log.Debug($"{nameof(Invoke)} || SQUARE({i}) = {square}");
             }
         }
-        */
         _AOtHudTick!.OriginalFunction(self, delta);
     }
     

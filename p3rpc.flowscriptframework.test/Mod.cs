@@ -58,7 +58,7 @@ public class Mod : ModBase
         
         _context = new(
             baseAddress, _configuration, _logger, startupScanner, _hooks, _modLoader.GetDirectoryForModId(_modConfig.ModId), 
-            utils, new Memory(), sharedScans, toolkitClasses, toolkitFactory, toolkitState, flowLib, msgLib);
+            utils, new(), sharedScans, toolkitClasses, toolkitFactory, toolkitState, flowLib, msgLib, new(flowLib));
         _runtime = new(_context);
         _runtime.AddModule<Invoke>();
         _runtime.AddModule<Registration>();

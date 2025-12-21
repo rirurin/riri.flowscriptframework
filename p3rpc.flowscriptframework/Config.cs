@@ -11,14 +11,17 @@ public class Config : Configurable<Config>
     public LogLevel LogLevel { get; set; } = LogLevel.Information;
 
     [DisplayName("Enable Flowscript Log Functions")]
+    [Description("Restores the Flowscript debug log functions (PUT, PUTF, PUTS, DBG_PUT and DBG_PUTS)")]
     [DefaultValue(true)]
     public bool EnableLogFunctions { get; set; } = true;
     
-    [DisplayName("Log When Flowscript Function Invoked")]
+    [DisplayName("Log on Invoked")]
+    [Description("Log when a Flowscript function is invoked")]
     [DefaultValue(false)]
     public bool LogOnFunctionInvoke { get; set; } = false;
     
     [DisplayName("Debug MessageScript Functions")]
+    [Description("Print out debug information for the current MessageScript's context")]
     [DefaultValue(false)]
     public bool DebugMessageScript { get; set; } = false;
 }
