@@ -8,8 +8,14 @@ namespace p3rpc.flowscriptframework.dumper.Configuration;
 public class Config : Configurable<Config>
 {
     [DisplayName("Log Level")]
+    [Description("Sets what logs will get printed to the Reloaded console")]
     [DefaultValue(LogLevel.Information)]
     public LogLevel LogLevel { get; set; } = LogLevel.Information;
+
+    [DisplayName("Target Library")]
+    [Description("Set the library to dump functions for")]
+    [DefaultValue("Persona3Reload")]
+    public string TargetLibrary { get; set; } = "Persona3Reload";
 }
 
 /// <summary>

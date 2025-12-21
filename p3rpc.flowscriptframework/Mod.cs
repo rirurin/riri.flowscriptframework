@@ -8,6 +8,7 @@ using p3rpc.flowscriptframework.Interfaces;
 using Reloaded.Memory;
 using Reloaded.Memory.SigScan.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces.Internal;
+using riri.flowscriptframework.Types.V4;
 using RyoTune.Reloaded;
 using SharedScans.Interfaces;
 
@@ -42,9 +43,10 @@ public class Mod : ModBase, IExports
         
         var process = Process.GetCurrentProcess();
         if (process?.MainModule == null) throw new Exception($"[{_modConfig.ModName}] Process is null");
+        if (_hooks == null) throw new Exception($"[{_modConfig.ModName}] Reference to Reloaded Hooks in ModConfig is missing!");
         var baseAddress = process.MainModule.BaseAddress;
         var startupScanner = Utils.GetDependency<IStartupScanner>(_modLoader, _modConfig.ModName, "Reloaded Startup Scanner");
-        Utils utils = Utils.Create(_modLoader, startupScanner, _logger, _hooks, baseAddress, _modConfig.ModName, System.Drawing.Color.PaleTurquoise);
+        var utils = Utils.Create(_modLoader, startupScanner, _logger, _hooks, baseAddress, _modConfig.ModName, System.Drawing.Color.PaleTurquoise);
         
         var sharedScans = utils.GetDependencyEx<ISharedScans>("Shared Scans");
         _context = new(
@@ -93,5 +95,5 @@ public class Mod : ModBase, IExports
 
     #endregion
 
-    public Type[] GetTypes() => [typeof(IFlowFramework), typeof(IMsgFramework)];
+    public Type[] GetTypes() => [typeof(IFlowFramework), typeof(IMsgFramework), typeof(ParamType)];
 }

@@ -1,4 +1,6 @@
-﻿namespace p3rpc.flowscriptframework.Interfaces;
+﻿using riri.flowscriptframework.Types.V4;
+
+namespace p3rpc.flowscriptframework.Interfaces;
 
 public interface IInvokeParams
 {

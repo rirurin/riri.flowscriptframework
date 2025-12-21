@@ -43,7 +43,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="p3rpc.commonmodutils" Version="1.8.0" />
+        <PackageReference Include="p3rpc.commonmodutils" Version="1.8.2" />
         <PackageReference Include="Reloaded.Mod.Interfaces" Version="2.4.0" ExcludeAssets="runtime"/>
         <PackageReference Include="Reloaded.SharedLib.Hooks" Version="1.9.0"/>
         <PackageReference Include="RyoTune.Reloaded" Version="4.2.1" />
@@ -52,6 +52,7 @@
     <ItemGroup>
       <ProjectReference Include="..\include\AtlusScriptTools\Source\AtlusScriptLibrary\AtlusScriptLibrary.csproj" />
       <ProjectReference Include="..\p3rpc.flowscriptframework.Interfaces\p3rpc.flowscriptframework.Interfaces.csproj" />
+      <ProjectReference Include="..\riri.flowscriptframework.Types.V4\riri.flowscriptframework.Types.V4.csproj" />
     </ItemGroup>
 
 </Project>

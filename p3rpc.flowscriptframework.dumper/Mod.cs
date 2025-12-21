@@ -44,9 +44,10 @@ public class Mod : ModBase
         
         var process = Process.GetCurrentProcess();
         if (process?.MainModule == null) throw new Exception($"[{_modConfig.ModName}] Process is null");
+        if (_hooks == null) throw new Exception($"[{_modConfig.ModName}] Reference to Reloaded Hooks in ModConfig is missing!");
         var baseAddress = process.MainModule.BaseAddress;
         var startupScanner = Utils.GetDependency<IStartupScanner>(_modLoader, _modConfig.ModName, "Reloaded Startup Scanner");
-        Utils utils = Utils.Create(_modLoader, startupScanner, _logger, _hooks, baseAddress, _modConfig.ModName, System.Drawing.Color.PaleTurquoise);
+        var utils = Utils.Create(_modLoader, startupScanner, _logger, _hooks, baseAddress, _modConfig.ModName, System.Drawing.Color.PaleTurquoise);
         
         var sharedScans = utils.GetDependencyEx<ISharedScans>("Shared Scans");
         var flowLib = utils.GetDependencyEx<IFlowFramework>("Flowscript Library");
@@ -60,6 +61,7 @@ public class Mod : ModBase
             baseAddress, _configuration, _logger, startupScanner, _hooks, _modLoader.GetDirectoryForModId(_modConfig.ModId), 
             utils, new Memory(), sharedScans, flowLib, msgLib);
         _runtime = new(_context);
+        _runtime.AddModule<Dumper>();
         _runtime.RegisterModules();
         
         _modLoader.OnModLoaderInitialized += OnLoaderInit;
@@ -71,7 +73,7 @@ public class Mod : ModBase
     public override void ConfigurationUpdated(Config configuration)
     {
         _configuration = configuration;
-        _logger.WriteLine($"[{_modConfig.ModId}] Config Updated: Applying");
+        _runtime.UpdateConfiguration(_configuration);
     }
 
     #endregion

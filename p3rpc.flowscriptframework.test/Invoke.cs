@@ -12,7 +12,7 @@ public class Invoke : ModuleBase<FlowscriptContext>
     
     public unsafe delegate void AOtHUD_Tick(AOtHUD* self, float delta);
 
-    private IHook<AOtHUD_Tick> _AOtHudTick;
+    private IHook<AOtHUD_Tick>? _AOtHudTick;
 
     private unsafe void AOtHUD_TickImpl(AOtHUD* self, float delta)
     {
@@ -32,7 +32,7 @@ public class Invoke : ModuleBase<FlowscriptContext>
             }
         }
         */
-        _AOtHudTick.OriginalFunction(self, delta);
+        _AOtHudTick!.OriginalFunction(self, delta);
     }
     
     public unsafe Invoke(FlowscriptContext context, Dictionary<string, ModuleBase<FlowscriptContext>> modules) : base(context, modules)

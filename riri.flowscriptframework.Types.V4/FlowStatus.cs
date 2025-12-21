@@ -1,4 +1,4 @@
-﻿namespace p3rpc.flowscriptframework.Interfaces;
+﻿namespace riri.flowscriptframework.Types.V4;
 
 public enum FlowStatus : byte
 {

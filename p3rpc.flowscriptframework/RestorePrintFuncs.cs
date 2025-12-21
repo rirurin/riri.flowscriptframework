@@ -10,7 +10,7 @@ public class RestorePrintFuncs(FlowscriptContext context, Dictionary<string, Mod
     : ModuleBase<FlowscriptContext>(context, modules)
 {
 
-    private FlowFramework _flowFramework;
+    private FlowFramework? _flowFramework;
 
     private FlowStatus PutInt(IScriptState ctx)
     {
@@ -42,10 +42,11 @@ public class RestorePrintFuncs(FlowscriptContext context, Dictionary<string, Mod
     public override void Register()
     {
         _flowFramework = GetModule<FlowFramework>();
-        _flowFramework.Register("PUT", 1, PutInt, 2);
-        _flowFramework.Register("PUTS", 1, PutString, 3);
-        _flowFramework.Register("PUTF", 1, PutFloat, 4);
-        _flowFramework.Register("DBG_PUT", 1, PutInt, 0x20);
-        _flowFramework.Register("DBG_PUTS", 1, PutString, 0x21);
+        
+        _flowFramework.Register("PUT", [ParamType.Int], ParamType.Void, PutInt, 2);
+        _flowFramework.Register("PUTS", [ParamType.String], ParamType.Void, PutString, 3);
+        _flowFramework.Register("PUTF", [ParamType.Float], ParamType.Void, PutFloat, 4);
+        _flowFramework.Register("DBG_PUT", [ParamType.Int], ParamType.Void, PutInt, 0x20);
+        _flowFramework.Register("DBG_PUTS", [ParamType.String], ParamType.Void, PutString, 0x21);
     }
 }

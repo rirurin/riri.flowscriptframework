@@ -16,9 +16,11 @@ internal interface ICommInvoke
     unsafe FlowStatus Invoke(ScriptInterpreter* pWork);
 }
 
-internal record CustomFunction(string name, int argCount, Func<IScriptState, FlowStatus> function) : ICommInvoke
+internal record CustomFunction(string name, ParamType[] args, ParamType returnArg, Func<IScriptState, FlowStatus> function) : ICommInvoke
 {
-    public int ArgCount => argCount;
+    public ParamType[] Args => args;
+    public ParamType ReturnArg => returnArg;
+    public int ArgCount => Args.Length;
     public string Name => name;
     public unsafe FlowStatus Invoke(ScriptInterpreter* pWork) => function(new ScriptState(pWork));
 }
@@ -49,6 +51,7 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
     private int[] AddStart = new int[6];
 
     private FlowscriptSection* Sections { get; set; }
+    public nint FunctionTable => (nint)Sections;
     
     // Define these as static so ScriptState can see them
     public static int* GlobalInt { get; private set; }
@@ -56,9 +59,9 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
 
     private bool FoundGlobalInt_Float = false;
 
-    private Dictionary<ushort, CustomFunction> CustomFunctions = new();
-    private Queue<(string, int, Func<IScriptState, FlowStatus>, ushort)> PreCommHookQueue = new();
-    private Dictionary<string, ushort> NameToId = new();
+    private Dictionary<ushort, CustomFunction> CustomFunctions = [];
+    private Queue<(string, ParamType[], ParamType, Func<IScriptState, FlowStatus>, ushort)> PreCommHookQueue = [];
+    private Dictionary<string, ushort> NameToId = [];
 
     private long CodeFunc_COMMImpl(ScriptInterpreter* pWork)
     {
@@ -86,6 +89,7 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
     private bool IsVanilla(ushort Id)
     {
         var (Sec, Entry) = (Id >> 0xc, Id & 0xfff);
+        var OGEnd = Sec < 6 ? OriginalEnd[Sec] : ushort.MaxValue;
         return Sec < 6 && Entry < OriginalEnd[Sec];
     }
 
@@ -104,14 +108,14 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
         return !DoesHashCollideCustom(HashValue);
     }
 
-    public void Register(string functionName, int argCount, Func<IScriptState, FlowStatus> function, 
+    public void Register(string functionName, ParamType[] args, ParamType returnArg, Func<IScriptState, FlowStatus> function, 
         ushort idOverride = ushort.MaxValue)
     {
-        if (_CodeFunc_COMM != null) RegisterReal(functionName, argCount, function, idOverride);
-        else PreCommHookQueue.Enqueue((functionName, argCount, function, idOverride));
+        if (_CodeFunc_COMM != null) RegisterReal(functionName, args, returnArg, function, idOverride);
+        else PreCommHookQueue.Enqueue((functionName, args, returnArg, function, idOverride));
     }
 
-    private void RegisterReal(string functionName, int argCount, Func<IScriptState, FlowStatus> function,
+    private void RegisterReal(string functionName, ParamType[] args, ParamType returnArg, Func<IScriptState, FlowStatus> function,
         ushort idOverride = ushort.MaxValue)
     {
         var TargetIndex = IsVanilla(idOverride) ? idOverride : ushort.MaxValue;
@@ -121,9 +125,8 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
             Log.Warning($"{nameof(FlowFramework)} || Cannot add '{functionName}' due to a naming conflict. Please rename this!");
             return;
         }
-        
-        Log.Information($"{nameof(FlowFramework)} || Registered '{functionName}' || Args {argCount} || Index 0x{TargetIndex:x}");
-        CustomFunctions.TryAdd(TargetIndex, new CustomFunction(functionName, argCount, function));
+        Log.Information($"{nameof(FlowFramework)} || Registered '{functionName}' || Args [ {string.Join(", ", args.Select(p => p.ToString()))} ] || Index 0x{TargetIndex:x}");
+        CustomFunctions.TryAdd(TargetIndex, new CustomFunction(functionName, args, returnArg, function));
         NameToId.TryAdd(functionName, TargetIndex);
     }
 
@@ -143,9 +146,8 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
             NativeMemory.Copy(pProcName, pTemporary->ProcedureName, (nuint)ProcName.Length);
         pTemporary->MessageID = -1;
         var Temporary = new ScriptState(pTemporary);
-        List<IArgLifetime> Lifetimes = Args.AsEnumerable().Reverse().Select(x => x.Push(Temporary)).ToList();
-        ICommInvoke Comm = CustomFunctions.TryGetValue(CommId, out var Function)
-            ? Function : new VanillaFunction(Sections, CommId);
+        var Lifetimes = Args.AsEnumerable().Reverse().Select(x => x.Push(Temporary)).ToList();
+        ICommInvoke Comm = CustomFunctions.TryGetValue(CommId, out var Function) ? Function : new VanillaFunction(Sections, CommId);
         if (((Config)_context._config).LogOnFunctionInvoke)
             Log.Debug($"{nameof(FlowFramework)} || Call Function '{Comm.Name}'");
         if (Comm.Invoke(pTemporary) != FlowStatus.FAILURE) return true;
@@ -173,13 +175,49 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
         return Return;
     }
 
+    public List<FlowscriptJson> GetAllFunctions()
+    {
+        List<FlowscriptJson> Out = [];
+        HashSet<ushort> HookedFunctions = [];
+
+        var AddCustom = (int Index, CustomFunction Value) =>
+            new FlowscriptJson(Index, Value.ReturnArg, Value.Name, Value.Args);
+        
+        for (var SI = 0; SI < Constants.FlowscriptSections; SI++)
+        {
+            var Section = &Sections[SI];
+            for (var FI = 0; FI < Section->Count; FI++)
+            {
+                var Index = (ushort)((SI << 0xc) + FI);
+                if (CustomFunctions.TryGetValue(Index, out var Custom))
+                {
+                    HookedFunctions.Add(Index);
+                    Out.Add(AddCustom(Index, Custom));
+                }
+                else
+                {
+                    var Function = &Section->Entries[FI];
+                    Out.Add(new FlowscriptJson(Index, Function->ReturnType, Function->GetName(), Function->GetParamList()));
+                }
+            }
+        }
+
+        Out.AddRange(CustomFunctions
+            .Where(value => !HookedFunctions.Contains(value.Key))
+            .Select(value => AddCustom(value.Key, value.Value)).AsEnumerable());
+        return Out;
+    }
+
+    public List<int> GetVanillaSectionEnds() => OriginalEnd.ToList();
+
     // Available hashes: u16::MAX - 0x374 = 0xfc8b (up to 64651 functions)
     public FlowFramework(FlowscriptContext context, Dictionary<string, ModuleBase<FlowscriptContext>> modules) : base(context, modules)
     {
         Project.Scans.AddScanHook(nameof(CodeFunc_COMM), (ptr, hooks) =>
         {
             Sections = (FlowscriptSection*)Utilities.GetGlobalAddress((int*)(ptr + 0x54 + 0x3));
-            for (var SI = 0; SI < 6; SI++)
+            
+            for (var SI = 0; SI < Constants.FlowscriptSections; SI++)
             {
                 var Section = &Sections[SI];
                 // For new titles that may get DLC/expansions in the future, add some offset to this
@@ -194,7 +232,7 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
             }
             // Now that we know where the bounds are for vanilla values, process queued elements
             while (PreCommHookQueue.TryDequeue(out var Queued))
-                RegisterReal(Queued.Item1, Queued.Item2, Queued.Item3, Queued.Item4);
+                RegisterReal(Queued.Item1, Queued.Item2, Queued.Item3, Queued.Item4, Queued.Item5);
             _CodeFunc_COMM = hooks.CreateHook<CodeFunc_COMM>(CodeFunc_COMMImpl, ptr).Activate();
         });
         Project.Scans.AddScanHook("GlobalInt_Float", (ptr, _) =>

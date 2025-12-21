@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using p3rpc.flowscriptframework.Interfaces;
 
 namespace riri.flowscriptframework.Types.V4;
 
@@ -12,7 +11,7 @@ public unsafe struct FlowscriptEntry
     private char* Name;
     private fixed int ParamTypes[10];
 
-    public string GetName() => Marshal.PtrToStringAnsi((nint)Name);
+    public string GetName() => Marshal.PtrToStringAnsi((nint)Name)!;
 
     public ParamType GetParamType(int Index)
     {

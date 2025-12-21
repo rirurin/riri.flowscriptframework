@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\riri.flowscriptframework.Types.V4\riri.flowscriptframework.Types.V4.csproj" />
+    </ItemGroup>
+
 </Project>

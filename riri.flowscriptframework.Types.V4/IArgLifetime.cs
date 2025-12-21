@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace p3rpc.flowscriptframework.Interfaces;
+namespace riri.flowscriptframework.Types.V4;
 
 public interface IArgLifetime : IDisposable {}
 

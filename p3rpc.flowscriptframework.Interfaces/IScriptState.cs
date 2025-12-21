@@ -1,4 +1,6 @@
-﻿namespace p3rpc.flowscriptframework.Interfaces;
+﻿using riri.flowscriptframework.Types.V4;
+
+namespace p3rpc.flowscriptframework.Interfaces;
 
 public interface IScriptState
 {
@@ -22,7 +24,7 @@ public interface IScriptState
     /// </summary>
     /// <param name="index">Argument index.</param>
     /// <returns>The string argument.</returns>
-    public string GetStringArg(int index);
+    public string? GetStringArg(int index);
 
     /// <summary>
     /// Sets the functions return value.

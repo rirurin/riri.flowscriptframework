@@ -66,7 +66,7 @@ public unsafe struct MessageCharacter
     {
         fixed (byte* pCharacter = Character)
         {
-            return Marshal.PtrToStringUTF8((nint)pCharacter);
+            return Marshal.PtrToStringUTF8((nint)pCharacter)!;
         }
     }
 }
