@@ -77,63 +77,63 @@ jobs:
     - name: (P3R - Main) Upload GitHub Release Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: GitHub Release # Artifact name
+        name: ${{ '[Persona 3 Reload - Main] GitHub Release' }} # Artifact name
         path: | # A file, directory or wildcard pattern that describes what to upload
           ${{ env.PUBLISH_BASE }}/${{ env.P3R_PATH }}/Main/${{ env.PUBLISH_GITHUB_PATH }}/*
 
     - name: (P3R - Main) Upload GameBanana Release Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: GameBanana Release # Artifact name
+        name: ${{ '[Persona 3 Reload - Main] Gamebanana Release' }} # Artifact name
         path: | # A file, directory or wildcard pattern that describes what to upload
           ${{ env.PUBLISH_BASE }}/${{ env.P3R_PATH }}/Main/${{ env.PUBLISH_GAMEBANANA_PATH }}/*
 
     - name: (P3R - Main) Upload NuGet Release Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: NuGet Release # Artifact name
+        name: ${{ '[Persona 3 Reload - Main] NuGet Release' }} # Artifact name
         path: | # A file, directory or wildcard pattern that describes what to upload
           ${{ env.PUBLISH_BASE }}/${{ env.P3R_PATH }}/Main/${{ env.PUBLISH_NUGET_PATH }}/*
 
     - name: (P3R - Dumper) Upload GitHub Release Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: GitHub Release # Artifact name
+        name: ${{ '[Persona 3 Reload - Dumper] GitHub Release' }} # Artifact name
         path: | # A file, directory or wildcard pattern that describes what to upload
           ${{ env.PUBLISH_BASE }}/${{ env.P3R_PATH }}/Dumper/${{ env.PUBLISH_GITHUB_PATH }}/*
 
     - name: (P3R - Dumper) Upload GameBanana Release Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: GameBanana Release # Artifact name
+        name: ${{ '[Persona 3 Reload - Dumper] Gamebanana Release' }} # Artifact name
         path: | # A file, directory or wildcard pattern that describes what to upload
           ${{ env.PUBLISH_BASE }}/${{ env.P3R_PATH }}/Dumper/${{ env.PUBLISH_GAMEBANANA_PATH }}/*
 
     - name: (P3R - Dumper) Upload NuGet Release Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: NuGet Release # Artifact name
+        name: ${{ '[Persona 3 Reload - Dumper] NuGet Release' }} # Artifact name
         path: | # A file, directory or wildcard pattern that describes what to upload
           ${{ env.PUBLISH_BASE }}/${{ env.P3R_PATH }}/Dumper/${{ env.PUBLISH_NUGET_PATH }}/*
 
     - name: (P3R - Test) Upload GitHub Release Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: GitHub Release # Artifact name
+        name: ${{ '[Persona 3 Reload - Test] GitHub Release' }} # Artifact name
         path: | # A file, directory or wildcard pattern that describes what to upload
           ${{ env.PUBLISH_BASE }}/${{ env.P3R_PATH }}/Test/${{ env.PUBLISH_GITHUB_PATH }}/*
 
     - name: (P3R - Test) Upload GameBanana Release Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: GameBanana Release # Artifact name
+        name: ${{ '[Persona 3 Reload - Test] Gamebanana Release' }} # Artifact name
         path: | # A file, directory or wildcard pattern that describes what to upload
           ${{ env.PUBLISH_BASE }}/${{ env.P3R_PATH }}/Test/${{ env.PUBLISH_GAMEBANANA_PATH }}/*
 
     - name: (P3R - Test) Upload NuGet Release Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: NuGet Release # Artifact name
+        name: ${{ '[Persona 3 Reload - Test] NuGet Release' }} # Artifact name
         path: | # A file, directory or wildcard pattern that describes what to upload
           ${{ env.PUBLISH_BASE }}/${{ env.P3R_PATH }}/Test/${{ env.PUBLISH_NUGET_PATH }}/*
 
