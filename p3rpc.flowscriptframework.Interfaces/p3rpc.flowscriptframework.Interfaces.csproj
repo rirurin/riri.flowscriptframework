@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 
 	      <!-- Create NuGet Package and include your Documentation/comments inside. -->
-	      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	      <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
 	      <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 
 	      <!-- Set to the same as your project name/namespace -->
