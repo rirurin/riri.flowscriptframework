@@ -159,7 +159,7 @@ jobs:
             Write-Host "NuGet Repository Key (GitHub Secrets -> NUGET_KEY) Not Specified. Skipping."
             return
         }
-        dotnet nuget push $env:PUBLISH_BASE/$env:INTERFACE_PATH/*.nupkg -k "$env:NUGET_KEY" -s "$env:NUGET_URL" --skip-duplicate
+        dotnet nuget push "$env:PUBLISH_BASE/$env:INTERFACE_PATH/*.nupkg" -k "$env:NUGET_KEY" -s "$env:NUGET_URL" --skip-duplicate
 
     - name: Push Mods to Reloaded NuGet (on Tag)
       env: 
