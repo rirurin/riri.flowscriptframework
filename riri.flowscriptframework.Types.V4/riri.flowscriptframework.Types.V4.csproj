@@ -6,6 +6,30 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RootNamespace>riri.flowscriptframework.Types.V4</RootNamespace>
-        <Version>1.0.0</Version>
+
+	    <!-- Create NuGet Package and include your Documentation/comments inside. -->
+	    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+	    <!-- Set to the same as your project name/namespace -->
+	    <PackageId>riri.flowscriptframework.Types.V4</PackageId>
+
+	    <!-- Use Semantic Versioning -->
+	    <Version>1.0.0</Version>
+	    <Authors>Rirurin</Authors>
+
+	    <!-- Description of your Package -->
+	    <Description>Allows Persona 3 Reload mods to add new FlowScript and MessageScript functions.</Description>
+
+	    <!-- Link to your Source Code [GitHub Page, etc.] -->
+	    <PackageProjectUrl></PackageProjectUrl>
+	    <RepositoryUrl>https://github.com/rirurin/riri.flowscriptframework</RepositoryUrl>
+
+	    <!-- URL to the icon seen for your package in NuGet Search -->
+	    <PackageIconUrl>https://avatars1.githubusercontent.com/u/45473408</PackageIconUrl>
+
+	    <!-- SPDX License Identifier: https://spdx.org/licenses/ -->
+	    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+	    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     </PropertyGroup>
 </Project>

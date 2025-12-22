@@ -1,4 +1,6 @@
-﻿namespace riri.flowscriptframework.Types.V4;
+﻿#pragma warning disable CS1591
+
+namespace riri.flowscriptframework.Types.V4;
 
 public enum FlowStatus : byte
 {

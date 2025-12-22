@@ -1,4 +1,6 @@
-﻿using riri.flowscriptframework.Types.V4;
+﻿#pragma warning disable CS1591
+
+using riri.flowscriptframework.Types.V4;
 
 namespace p3rpc.flowscriptframework.Interfaces;
 

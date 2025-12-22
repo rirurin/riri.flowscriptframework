@@ -43,7 +43,7 @@ public class Invoke : ModuleBase<FlowscriptContext>
         _context._toolkitClasses.AddConstructor<AOtHUD>(obj =>
         {
             _AOtHudTick ??= _context._hooks.CreateHook<AOtHUD_Tick>(AOtHUD_TickImpl,
-                *(nint*)(((nativetypes.Interfaces.UObject*)obj.Self)->_vtable + 0x460)).Activate();
+                *(nint*)(*(nint*)obj.Self + 0x460)).Activate();
         });
     }
 
