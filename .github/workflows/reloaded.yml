@@ -68,8 +68,8 @@ jobs:
 
     - name: Build Dependencies
       run: |
-        dotnet pack p3rpc.flowscriptframework.Interfaces -c Release --output "$env:PUBLISH_BASE/$env:INTERFACE_PATH"
-        dotnet pack riri.flowscriptframework.Types.V4 -c Release --output "$env:PUBLISH_BASE/$env:INTERFACE_PATH"
+        dotnet publish p3rpc.flowscriptframework.Interfaces -c Release --self-contained false -o "$env:PUBLISH_BASE/$env:INTERFACE_PATH" /p:OutputPath="../$env:PUBLISH_BASE/$env:INTERFACE_PATH"
+        dotnet publish riri.flowscriptframework.Types.V4 -c Release --self-contained false -o "$env:PUBLISH_BASE/$env:INTERFACE_PATH" /p:OutputPath="../$env:PUBLISH_BASE/$env:INTERFACE_PATH"
 
     - name: Build Mods
       run: ./PublishAll.ps1
