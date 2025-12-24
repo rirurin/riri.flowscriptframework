@@ -171,10 +171,18 @@ jobs:
             Write-Host "NuGet Repository Key (GitHub Secrets -> RELOADED_NUGET_KEY) Not Specified. Skipping."
             return
         }
-        $Items = Get-ChildItem -Path "$env:PUBLISH_BASE/$env:P3R_PATH/Main/$env:PUBLISH_NUGET_PATH/*.nupkg"
-        $Items += @(Get-ChildItem -Path "$env:PUBLISH_BASE/$env:P3R_PATH/Dumper/$env:PUBLISH_NUGET_PATH/*.nupkg")
-        $Items += @(Get-ChildItem -Path "$env:PUBLISH_BASE/$env:P3R_PATH/Test/$env:PUBLISH_NUGET_PATH/*.nupkg")
-        Foreach ($Item in $Items)
+        Foreach ($Item in Get-ChildItem -Path "$env:PUBLISH_BASE/$env:P3R_PATH/Main/$env:PUBLISH_NUGET_PATH/*.nupkg")
+        {
+            Write-Host "Pushing $Item"
+            dotnet nuget push "$Item" -k "$env:RELOADED_NUGET_KEY" -s "$env:RELOADED_NUGET_URL" --skip-duplicate
+        }
+        Foreach ($Item in Get-ChildItem -Path "$env:PUBLISH_BASE/$env:P3R_PATH/Dumper/$env:PUBLISH_NUGET_PATH/*.nupkg")
+        {
+            Write-Host "Pushing $Item"
+            dotnet nuget push "$Item" -k "$env:RELOADED_NUGET_KEY" -s "$env:RELOADED_NUGET_URL" --skip-duplicate
+        }
+        }
+        Foreach ($Item in Get-ChildItem -Path "$env:PUBLISH_BASE/$env:P3R_PATH/Test$env:PUBLISH_NUGET_PATH/*.nupkg")
         {
             Write-Host "Pushing $Item"
             dotnet nuget push "$Item" -k "$env:RELOADED_NUGET_KEY" -s "$env:RELOADED_NUGET_URL" --skip-duplicate
