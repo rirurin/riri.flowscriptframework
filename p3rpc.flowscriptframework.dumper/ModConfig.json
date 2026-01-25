@@ -2,7 +2,7 @@
   "ModId": "p3rpc.flowscriptframework.dumper",
   "ModName": "P3RE Flowscript Framework Dumper",
   "ModAuthor": "Rirurin",
-  "ModVersion": "1.0.0",
+  "ModVersion": "1.1.0",
   "ModDescription": "Flowscript Framework Dumper for Persona 3 Reload",
   "ModDll": "p3rpc.flowscriptframework.dumper.dll",
   "ModIcon": "Preview.png",

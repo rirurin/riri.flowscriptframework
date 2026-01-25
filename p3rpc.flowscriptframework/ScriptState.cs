@@ -5,9 +5,10 @@ using RyoTune.Reloaded;
 
 namespace p3rpc.flowscriptframework;
 
-public unsafe class ScriptState(ScriptInterpreter* context) : IScriptState
+public unsafe class ScriptState(ScriptInterpreter* context, delegate* unmanaged[Stdcall]<ScriptInterpreter*, FlowStatus> originalFunction) : IScriptState
 {
     private ScriptInterpreter* Context { get; } = context;
+    private delegate* unmanaged[Stdcall]<ScriptInterpreter*, FlowStatus> _OriginalFunction { get; } = originalFunction;
     
     // Original function: GetIntArg @ 0x14bd14f50 (P3R 1.0.0 Steam)
     public int GetIntArg(int index)
@@ -59,7 +60,11 @@ public unsafe class ScriptState(ScriptInterpreter* context) : IScriptState
         Context->FloatReturnValue = value;
         Context->ReturnType = StackType.Float;
     }
+
+    public int GetIntReturnValue() => Context->IntReturnValue;
     
+    public float GetFloatReturnValue() => Context->FloatReturnValue;
+
     // Original function: OPCODE_PUSHIS @ 0x14121a220 (P3R 1.0.0 Steam)
     public IArgLifetime PushValue(int value)
     {
@@ -86,4 +91,6 @@ public unsafe class ScriptState(ScriptInterpreter* context) : IScriptState
         Context->StackValueIndex++;
         return Value;
     }
+
+    public FlowStatus OriginalFunction() => _OriginalFunction != null ? _OriginalFunction(Context) : FlowStatus.FAILURE;
 }

@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using p3rpc.commonmodutils;
+using p3rpc.flowscriptframework.Interfaces;
 using riri.flowscriptframework.Types.V4;
 using RyoTune.Reloaded;
 
@@ -7,6 +8,19 @@ namespace p3rpc.flowscriptframework.test;
 
 public class Registration : ModuleBase<FlowscriptContext>
 {
+
+    private FlowStatus BitChk(IScriptState ctx)
+    {
+        var ChkBit = ctx.GetIntArg(0);
+        // This will execute the original instruction. This should only be used for hooking existing functions - new
+        // functions will always return FlowStatus.FAILURE when called.
+        var Result = ctx.OriginalFunction();
+        // We can obtain the return value from the function and if we wanted to, write our own return instead
+        // using SetReturnValue
+        Log.Debug($"BIT_CHK: Check bit 0x{ChkBit:x} = {ctx.GetIntReturnValue()}");
+        return Result;       
+    }
+    
     public Registration(FlowscriptContext context, Dictionary<string, ModuleBase<FlowscriptContext>> modules) : base(context, modules)
     {
         // Define a custom Flowscript function that takes an integer and multiplies it by itself.
@@ -34,6 +48,10 @@ public class Registration : ModuleBase<FlowscriptContext>
                 return false; // Return false so text doesn't get cut off
             }
         );
+       
+        // Define a hook onto the built-in function BIT_CHK that contains a callback to the original function.
+        // See BitChk function above
+        _context._flowLib.Register("BIT_CHK", [ParamType.Int], ParamType.Int, BitChk, 0xe);
     }
 
     public override void Register()

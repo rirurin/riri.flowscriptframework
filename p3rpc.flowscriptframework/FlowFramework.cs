@@ -14,15 +14,36 @@ internal interface ICommInvoke
     int ArgCount { get; }
     string Name { get; }
     unsafe FlowStatus Invoke(ScriptInterpreter* pWork);
+    unsafe delegate* unmanaged[Stdcall]<ScriptInterpreter*, FlowStatus> OriginalFunction();
 }
 
-internal record CustomFunction(string name, ParamType[] args, ParamType returnArg, Func<IScriptState, FlowStatus> function) : ICommInvoke
+internal class CustomFunction(
+    string name,
+    ParamType[] args,
+    ParamType returnArg,
+    Func<IScriptState, FlowStatus> function,
+    FlowFramework context)
+    : ICommInvoke 
 {
-    public ParamType[] Args => args;
-    public ParamType ReturnArg => returnArg;
+    public ParamType[] Args { get; } = args;
+    public ParamType ReturnArg { get; } = returnArg;
     public int ArgCount => Args.Length;
-    public string Name => name;
-    public unsafe FlowStatus Invoke(ScriptInterpreter* pWork) => function(new ScriptState(pWork));
+    public string Name { get; } = name;
+    private Func<IScriptState, FlowStatus> Function { get; } = function;
+    private FlowFramework Context { get; } = context;
+
+    public unsafe FlowStatus Invoke(ScriptInterpreter* pWork) => Function(new ScriptState(pWork, OriginalFunction()));
+
+    public unsafe delegate* unmanaged[Stdcall]<ScriptInterpreter*, FlowStatus> OriginalFunction()
+    {
+        var CommId = Context.NameToId[Name];
+        if (!Context.IsVanilla(CommId))
+        {
+            return null;
+        }
+        var (SecId, EntryId) = (CommId >> 0xc, CommId & 0xfff);
+        return Context.Sections[SecId].Entries[EntryId].Func;
+    }
 }
 
 internal unsafe class VanillaFunction : ICommInvoke
@@ -40,6 +61,9 @@ internal unsafe class VanillaFunction : ICommInvoke
     public int ArgCount => Entry->ParamCount;
 
     public FlowStatus Invoke(ScriptInterpreter* pWork) => Entry->Func(pWork);
+   
+    // Redundant for vanilla functions since we already store the reference in Entry
+    public delegate* unmanaged[Stdcall]<ScriptInterpreter*, FlowStatus> OriginalFunction() => Entry->Func;
 }
 
 public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramework
@@ -50,18 +74,17 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
     private int[] OriginalEnd = new int[6];
     private int[] AddStart = new int[6];
 
-    private FlowscriptSection* Sections { get; set; }
-    public nint FunctionTable => (nint)Sections;
+    internal FlowscriptSection* Sections { get; private set; }
     
     // Define these as static so ScriptState can see them
     public static int* GlobalInt { get; private set; }
     public static float* GlobalFloat { get; private set; }
 
-    private bool FoundGlobalInt_Float = false;
+    private bool FoundGlobalInt_Float;
 
     private Dictionary<ushort, CustomFunction> CustomFunctions = [];
     private Queue<(string, ParamType[], ParamType, Func<IScriptState, FlowStatus>, ushort)> PreCommHookQueue = [];
-    private Dictionary<string, ushort> NameToId = [];
+    internal Dictionary<string, ushort> NameToId = [];
 
     private long CodeFunc_COMMImpl(ScriptInterpreter* pWork)
     {
@@ -86,7 +109,7 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
 
     private bool DoesHashCollideCustom(ushort Id) => CustomFunctions.ContainsKey(Id);
 
-    private bool IsVanilla(ushort Id)
+    internal bool IsVanilla(ushort Id)
     {
         var (Sec, Entry) = (Id >> 0xc, Id & 0xfff);
         var OGEnd = Sec < 6 ? OriginalEnd[Sec] : ushort.MaxValue;
@@ -126,7 +149,7 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
             return;
         }
         Log.Information($"{nameof(FlowFramework)} || Registered '{functionName}' || Args [ {string.Join(", ", args.Select(p => p.ToString()))} ] || Index 0x{TargetIndex:x}");
-        CustomFunctions.TryAdd(TargetIndex, new CustomFunction(functionName, args, returnArg, function));
+        CustomFunctions.TryAdd(TargetIndex, new CustomFunction(functionName, args, returnArg, function, this));
         NameToId.TryAdd(functionName, TargetIndex);
     }
 
@@ -145,9 +168,9 @@ public unsafe class FlowFramework : ModuleBase<FlowscriptContext>, IFlowFramewor
         fixed (byte* pProcName = ProcName)
             NativeMemory.Copy(pProcName, pTemporary->ProcedureName, (nuint)ProcName.Length);
         pTemporary->MessageID = -1;
-        var Temporary = new ScriptState(pTemporary);
-        var Lifetimes = Args.AsEnumerable().Reverse().Select(x => x.Push(Temporary)).ToList();
         ICommInvoke Comm = CustomFunctions.TryGetValue(CommId, out var Function) ? Function : new VanillaFunction(Sections, CommId);
+        var Temporary = new ScriptState(pTemporary, Comm.OriginalFunction());
+        var Lifetimes = Args.AsEnumerable().Reverse().Select(x => x.Push(Temporary)).ToList();
         if (((Config)_context._config).LogOnFunctionInvoke)
             Log.Debug($"{nameof(FlowFramework)} || Call Function '{Comm.Name}'");
         if (Comm.Invoke(pTemporary) != FlowStatus.FAILURE) return true;

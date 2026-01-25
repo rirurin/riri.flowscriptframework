@@ -2,7 +2,7 @@
   "ModId": "p3rpc.flowscriptframework.test",
   "ModName": "P3RE Flowscript Framework Test",
   "ModAuthor": "Rirurin",
-  "ModVersion": "1.0.0",
+  "ModVersion": "1.1.0",
   "ModDescription": "Flowscript Framework Test for Persona 3 Reload",
   "ModDll": "p3rpc.flowscriptframework.test.dll",
   "ModIcon": "Preview.png",

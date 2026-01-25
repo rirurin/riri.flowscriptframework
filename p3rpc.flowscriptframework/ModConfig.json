@@ -2,7 +2,7 @@
   "ModId": "p3rpc.flowscriptframework",
   "ModName": "P3RE Flowscript Framework",
   "ModAuthor": "Rirurin",
-  "ModVersion": "1.0.0",
+  "ModVersion": "1.1.0",
   "ModDescription": "Allows mods to add new Flowscript and MessageScript functions",
   "ModDll": "p3rpc.flowscriptframework.dll",
   "ModIcon": "Preview.png",
