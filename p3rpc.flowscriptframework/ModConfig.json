@@ -12,9 +12,72 @@
   "ModNativeDll64": "",
   "IsLibrary": true,
   "ReleaseMetadataFileName": "p3rpc.flowscriptframework.ReleaseMetadata.json",
-  "PluginData": {},
+  "PluginData": {
+    "GitHubRelease": {
+      "UserName": "Rirurin",
+      "RepositoryName": "riri.flowscriptframework",
+      "UseReleaseTag": true,
+      "AssetFileName": "Mod.zip"
+    },
+    "GameBananaDependencies": {
+      "IdToConfigMap": {
+        "p3rpc.essentials": {
+          "Config": {
+            "ItemType": "Mod",
+            "ItemId": 494020
+          },
+          "ReleaseMetadataName": "p3rpc.essentials.ReleaseMetadata.json"
+        },
+        "SharedScans.Reloaded": {
+          "Config": {
+            "ItemType": "Mod",
+            "ItemId": 495507
+          },
+          "ReleaseMetadataName": "SharedScans.Reloaded.ReleaseMetadata.json"
+        }
+      }
+    },
+    "GitHubDependencies": {
+      "IdToConfigMap": {
+        "p3rpc.essentials": {
+          "Config": {
+            "UserName": "AnimatedSwine37",
+            "RepositoryName": "p3rpc.essentials",
+            "UseReleaseTag": true,
+            "AssetFileName": "Mod.zip"
+          },
+          "ReleaseMetadataName": "p3rpc.essentials.ReleaseMetadata.json"
+        },
+        "Reloaded.Memory.SigScan.ReloadedII": {
+          "Config": {
+            "UserName": "Reloaded-Project",
+            "RepositoryName": "Reloaded.Memory.SigScan",
+            "UseReleaseTag": false,
+            "AssetFileName": "Mod.zip"
+          },
+          "ReleaseMetadataName": "Reloaded.Memory.SigScan.ReloadedII.ReleaseMetadata.json"
+        },
+        "reloaded.sharedlib.hooks": {
+          "Config": {
+            "UserName": "Sewer56",
+            "RepositoryName": "Reloaded.SharedLib.Hooks.ReloadedII",
+            "UseReleaseTag": true,
+            "AssetFileName": "reloaded.sharedlib.hooks.zip"
+          },
+          "ReleaseMetadataName": "Sewer56.Update.ReleaseMetadata.json"
+        }
+      }
+    },
+    "NuGet": {
+      "AllowUpdateFromAnyRepository": false,
+      "DefaultRepositoryUrls": [
+        "https://packages.sewer56.moe/v3/index.json"
+      ]
+    }
+  },
   "IsUniversalMod": false,
   "ModDependencies": [
+    "p3rpc.essentials",
     "Reloaded.Memory.SigScan.ReloadedII",
     "reloaded.sharedlib.hooks",
     "SharedScans.Reloaded"
