@@ -9,6 +9,7 @@ using Reloaded.Memory;
 using Reloaded.Memory.SigScan.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces.Internal;
 using riri.flowscriptframework.Types.V4;
+using riri.yamlscans.ReloadedII;
 using RyoTune.Reloaded;
 using SharedScans.Interfaces;
 
@@ -40,6 +41,7 @@ public class Mod : ModBase, IExports
 #endif
         Project.Initialize(_modConfig, _modLoader, _logger);
         Log.LogLevel = _configuration.LogLevel;
+        YamlScans.Initialize(_modConfig, _modLoader);
         
         var process = Process.GetCurrentProcess();
         if (process?.MainModule == null) throw new Exception($"[{_modConfig.ModName}] Process is null");

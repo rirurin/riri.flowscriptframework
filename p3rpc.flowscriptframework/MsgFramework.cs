@@ -8,6 +8,7 @@ using Reloaded.Hooks.Definitions;
 using Reloaded.Memory.Enums;
 using Reloaded.Memory.Interfaces;
 using riri.flowscriptframework.Types.V4;
+using riri.yamlscans.ReloadedII;
 using RyoTune.Reloaded;
 
 namespace p3rpc.flowscriptframework;
@@ -15,7 +16,7 @@ namespace p3rpc.flowscriptframework;
 public unsafe class MsgFramework : ModuleBase<FlowscriptContext>, IMsgFramework
 {
     
-    private MessageSection* Sections { get; set; }
+    private SHStatic<MessageSection> _MessageFunctionTable { get; set; }
     private HashSet<byte> VanillaFunctions { get; set; } = [];
     private static Dictionary<byte, Func<IMessageState, bool>> CustomFunctions = [];
     private static Dictionary<byte, string> CustomNames = [];
@@ -79,13 +80,13 @@ public unsafe class MsgFramework : ModuleBase<FlowscriptContext>, IMsgFramework
         AsBytes = System.IO.Hashing.XxHash3.Hash(AsBytes);
         HashValue = AsBytes[0];
         var (Sec, Index) = MessageIdToParts(HashValue);
-        var FuncPtr = Sections[Sec].Entries[Index];
+        var FuncPtr = _MessageFunctionTable.Instance[Sec].Entries[Index];
         do
         { 
             AsBytes = System.IO.Hashing.XxHash3.Hash(AsBytes);
             HashValue = AsBytes[0];
             (Sec, Index) = MessageIdToParts(HashValue);
-            FuncPtr = Sections[Sec].Entries[Index];
+            FuncPtr = _MessageFunctionTable.Instance[Sec].Entries[Index];
         } while (VanillaFunctions.Contains(HashValue));
         return FuncPtr == nint.Zero;
     }
@@ -93,30 +94,30 @@ public unsafe class MsgFramework : ModuleBase<FlowscriptContext>, IMsgFramework
     public void Register(string functionName, List<MessageParam> arguments, 
         Func<IMessageState, bool> function, ushort idOverride = ushort.MaxValue)
     {
-        if (Sections != null) RegisterReal(functionName, arguments, function, idOverride);
+        if (_MessageFunctionTable.Instance != null) RegisterReal(functionName, arguments, function, idOverride);
         else RegisterQueue.Enqueue((functionName, arguments, function, idOverride));
     }
 
     private void RegisterReal(string functionName, List<MessageParam> arguments,
         Func<IMessageState, bool> function, ushort idOverride = ushort.MaxValue)
     {
-        var TargetIndex = VanillaFunctions.Contains((byte)idOverride) ? idOverride : ushort.MaxValue;
-        if (TargetIndex == ushort.MaxValue)
+        var targetIndex = VanillaFunctions.Contains((byte)idOverride) ? idOverride : ushort.MaxValue;
+        if (targetIndex == ushort.MaxValue)
         {
             if (!GenerateFunctionIndex(functionName, out var BTargetIndex))
             {
                 Log.Warning($"{nameof(MsgFramework)} || Cannot add '{functionName}' due to a naming conflict. Please rename this!");
                 return;   
             }
-            TargetIndex = BTargetIndex;
+            targetIndex = BTargetIndex;
         }
-        var (Sec, Index) = MessageIdToParts(TargetIndex);
+        var (Sec, Index) = MessageIdToParts(targetIndex);
         Log.Information($"{nameof(MsgFramework)} || Registered '{functionName}' || Args {arguments.Count} " +
-                        $"|| Index 0x{TargetIndex:x} ([f {Sec} {Index}])");
-        CustomFunctions.TryAdd((byte)TargetIndex, function);
-        CustomNames.TryAdd((byte)TargetIndex, functionName);
-        CustomParams.TryAdd((byte)TargetIndex, arguments);
-        Sections[Sec].Entries[Index] = (nint)(delegate* unmanaged[Stdcall]<int, MessageContext*, int>)(&CallCustomFunction);
+                        $"|| Index 0x{targetIndex:x} ([f {Sec} {Index}])");
+        CustomFunctions.TryAdd((byte)targetIndex, function);
+        CustomNames.TryAdd((byte)targetIndex, functionName);
+        CustomParams.TryAdd((byte)targetIndex, arguments);
+        _MessageFunctionTable.Instance[Sec].Entries[Index] = (nint)(delegate* unmanaged[Stdcall]<int, MessageContext*, int>)(&CallCustomFunction);
     }
 
     public List<MessageSectionJson> GetAllFunctions()
@@ -124,7 +125,7 @@ public unsafe class MsgFramework : ModuleBase<FlowscriptContext>, IMsgFramework
         List<MessageSectionJson> Out = [];
         for (var SI = 0; SI < 8; SI++)
         {
-            var Section = &Sections[SI];
+            var Section = &_MessageFunctionTable.Instance[SI];
             Out.Add(new(SI));
             for (var FI = 0; FI < Section->Count; FI++)
             {
@@ -138,9 +139,9 @@ public unsafe class MsgFramework : ModuleBase<FlowscriptContext>, IMsgFramework
     
     public MsgFramework(FlowscriptContext context, Dictionary<string, ModuleBase<FlowscriptContext>> modules) : base(context, modules)
     {
-        Project.Scans.AddScanHook("MessageFunctionTable", (ptr, _) =>
+        _MessageFunctionTable = new("MessageFunctionTable", _ =>
         {
-            Sections = (MessageSection*)ptr;
+            var Sections = _MessageFunctionTable.Instance;
             for (var SI = 0; SI < 8; SI++)
             {
                 var Section = &Sections[SI];

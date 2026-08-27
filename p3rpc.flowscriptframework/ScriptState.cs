@@ -19,8 +19,8 @@ public unsafe class ScriptState(ScriptInterpreter* context, delegate* unmanaged[
         {
             StackType.Int or StackType.String => Context->GetIntValue(Param),
             StackType.Float => (int)Context->GetFloatValue(Param),
-            StackType.GlobalInt => FlowFramework.GlobalInt[Context->GetIntValue(Param)],
-            StackType.GlobalFloat => (int)FlowFramework.GlobalFloat[Context->GetIntValue(Param)],
+            StackType.GlobalInt => FlowFramework.GlobalInt.Instance[Context->GetIntValue(Param)],
+            StackType.GlobalFloat => (int)FlowFramework.GlobalFloat.Instance[Context->GetIntValue(Param)],
             _ => 0
         };
     }
@@ -34,8 +34,8 @@ public unsafe class ScriptState(ScriptInterpreter* context, delegate* unmanaged[
         {
             StackType.Int or StackType.String => Context->GetIntValue(Param),
             StackType.Float => Context->GetFloatValue(Param),
-            StackType.GlobalInt => FlowFramework.GlobalInt[Context->GetIntValue(Param)],
-            StackType.GlobalFloat => FlowFramework.GlobalFloat[Context->GetIntValue(Param)],
+            StackType.GlobalInt => FlowFramework.GlobalInt.Instance[Context->GetIntValue(Param)],
+            StackType.GlobalFloat => FlowFramework.GlobalFloat.Instance[Context->GetIntValue(Param)],
             _ => 0
         };
     }

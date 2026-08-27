@@ -13,7 +13,7 @@
 	      <PackageId>p3rpc.flowscriptframework.Interfaces</PackageId>
 
 	      <!-- Use Semantic Versioning -->
-	      <Version>1.1.1</Version>
+	      <Version>1.1.2</Version>
 	      <Authors>Rirurin</Authors>
 
 	      <!-- Description of your Package -->
